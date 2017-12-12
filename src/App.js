@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {HotKeys} from 'react-hotkeys';
-
 import styled, { injectGlobal } from 'styled-components';
+
 injectGlobal`
   body{
     width:100%;
@@ -29,18 +29,31 @@ class App extends Component {
     super(props);
     this.state = {
       cursor : 0,
-      tiles : []
+      tiles : [],
+      password : '',
+      authed : false
     }
   }
   componentWillMount(){
-    fetch('http://34.214.185.174/api/unverified').then(res => res.json()).then(json => {
-      console.log(json.length);
-      this.setState({tiles : json})
-    })
+    var pass = localStorage.getItem('pass');
+    if(pass) this.connect(pass);
+  }
+  connect(pass){
+    let headers = new Headers();
+    headers.append('Authorization', 'Basic ' + btoa("test:" + pass||this.state.password));
+    fetch('http://34.214.185.174/api/unverified', {headers}).then(res => res.json()).then(json => {
+     if(json){
+        this.setState({tiles : json, authed : true});
+        console.log(json.length);
+        localStorage.setItem('pass', pass);
+     }
+    }).catch(e => {})
   }
   saveValue(tile, val){
     console.log(tile, val);
-    fetch(`http://34.214.185.174/api/verify/${tile[0]}/${tile[1]}/${val}`)
+    let headers = new Headers();
+    headers.append('Authorization', 'Basic ' + btoa("test:" + this.state.password));
+    fetch(`http://34.214.185.174/api/verify/${tile[0]}/${tile[1]}/${val}`, {headers})
   }
   inc(){
     this.setState({cursor : this.state.cursor+1});
@@ -50,8 +63,8 @@ class App extends Component {
   }
   render() {
     const tile = this.state.tiles[this.state.cursor];
-    console.log(tile);
-    return (
+
+    return this.state.authed ? (
       <HotKeys 
         keyMap={{
           'building' : 'right',
@@ -79,7 +92,14 @@ class App extends Component {
           -> building
         </Container>
       </HotKeys>
-    );
+    ):(
+      <Container>
+        <input type='password' value={this.state.password} onChange={(e) => this.setState({password : e.target.value})}/>
+        <div onClick={() => this.connect(this.state.password)}>
+          OK
+        </div>
+      </Container>
+    )
   }
 }
 
