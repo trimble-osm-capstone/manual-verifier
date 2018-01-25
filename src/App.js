@@ -41,19 +41,17 @@ class App extends Component {
   connect(pass){
     let headers = new Headers();
     headers.append('Authorization', 'Basic ' + btoa("test:" + pass||this.state.password));
-    fetch('http://34.214.185.174/api/unverified', {headers}).then(res => res.json()).then(json => {
+    fetch('http://localhost:5000/unverified', {headers}).then(res => res.json()).then(json => {
      if(json){
         this.setState({tiles : json, authed : true});
-        console.log(json.length);
         localStorage.setItem('pass', pass);
      }
     }).catch(e => {})
   }
   saveValue(tile, val){
-    console.log(tile, val);
     let headers = new Headers();
     headers.append('Authorization', 'Basic ' + btoa("test:" + this.state.password));
-    fetch(`http://34.214.185.174/api/verify/${tile[0]}/${tile[1]}/${val}`, {headers})
+    fetch(`http://localhost:5000/verify/${tile[0]}/${tile[1]}/${val}`, {headers})
   }
   inc(){
     this.setState({cursor : this.state.cursor+1});
@@ -86,7 +84,7 @@ class App extends Component {
         <Container>
           {'none <-'}
           <div>
-          {tile && <img width='600' style={{imageRendering : 'pixelated'}} src={`http://34.214.185.174/api/t/${tile[0]}/${tile[1]}`}/>}
+          {tile && <img width='600' style={{imageRendering : 'pixelated'}} src={`http://localhost:5000/t/${tile[0]}/${tile[1]}`}/>}
           <div>{this.state.tiles.length-this.state.cursor} left</div>
           </div>
           -> building
