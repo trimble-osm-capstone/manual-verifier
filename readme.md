@@ -1,5 +1,8 @@
 # manual-verifier
- - requires a recent version of node, npm and yarn
+
+### Installation/Setup
+ - install a recentish version of [node](https://nodejs.org/en/download/) >= 8
+ - `sudo npm install -g yarn` install yarn
  - `yarn` will install all deps
  - `yarn start` will run development server at localhost:3000
  
