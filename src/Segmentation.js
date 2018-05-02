@@ -64,6 +64,7 @@ class Segmentation extends Component {
   }
   saveValue(tile, val){
     console.log(tile, val)
+    if(!tile) return;
     let headers = new Headers();
     headers.append('Authorization', 'Basic ' + btoa("test:" + this.state.password));
     fetch(`http://localhost:5000/segmentation_verify/${tile[0]}/${tile[1]}/${val}/${this.state.offsetX}/${this.state.offsetY}`, {headers})
