@@ -19,20 +19,12 @@ const Container = styled.div`
   display:flex;
   align-items:center;
 
+  img{
+    margin:20px;
+  }
 `
 
-const Tile = styled.img`
-  image-rendering : pixelated;
-  position:absolute;
-`
-
-const TileContainer = styled.div`
-  position:relative;
-  width:600px;
-  height:600px;
-`
-
-class App extends Component {
+class Classification extends Component {
   constructor(props){
     super(props);
     this.state = {
@@ -44,12 +36,13 @@ class App extends Component {
   }
   componentWillMount(){
     var pass = localStorage.getItem('pass');
-    if(pass) this.connect(pass);
+    if(pass || process.env.NODE_ENV === 'development') this.connect(pass);
   }
   connect(pass){
     let headers = new Headers();
+    this.setState({authed : true})
     headers.append('Authorization', 'Basic ' + btoa("test:" + pass||this.state.password));
-    fetch('http://localhost:5000/segmentation/unverified', {headers}).then(res => res.json()).then(json => {
+    fetch('http://localhost:5000/unverified', {headers}).then(res => res.json()).then(json => {
      if(json){
         this.setState({tiles : json, authed : true});
         localStorage.setItem('pass', pass);
@@ -57,10 +50,10 @@ class App extends Component {
     }).catch(e => {})
   }
   saveValue(tile, val){
-    console.log(tile, val)
+    if(!tile) return;
     let headers = new Headers();
     headers.append('Authorization', 'Basic ' + btoa("test:" + this.state.password));
-    fetch(`http://localhost:5000/segmentation_verify/${tile[0]}/${tile[1]}/${val}`, {headers})
+    fetch(`http://localhost:5000/verify/${tile[0]}/${tile[1]}/${val}`, {headers})
   }
   inc(){
     this.setState({cursor : this.state.cursor+1});
@@ -91,15 +84,12 @@ class App extends Component {
         }}
       >
         <Container>
-          {'NO <-'}
+          {'none <-'}
           <div>
-            <TileContainer>
-            {tile && <Tile width='600' src={`http://localhost:5000/t/${tile[0]}/${tile[1]}`}/>}
-            {tile && <Tile style={{opacity:0.5}} width='600' src={`http://localhost:5000/mt/${tile[0]}/${tile[1]}`}/>}
-            </TileContainer>
+          {tile && <img width='600' style={{imageRendering : 'pixelated'}} src={`http://localhost:5000/t/${tile[0]}/${tile[1]}`}/>}
           <div>{this.state.tiles.length-this.state.cursor} left</div>
           </div>
-          -> YES
+          -> building
         </Container>
       </HotKeys>
     ):(
@@ -113,4 +103,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default Classification;
